@@ -15,20 +15,11 @@ input_lock = threading.Lock()
 os.chdir(files.get_abs_path("./work_dir")) # change CWD to work_dir
 
 def setup_environment():
-    # Create virtual environment
-    if not os.path.exists('agent_zero_env'):
-        subprocess.run(['python3', '-m', 'venv', 'agent_zero_env'])
-
-    # Activate virtual environment
-    activate_script = os.path.join('agent_zero_env', 'bin', 'activate')
-    activate_command = f'source {activate_script} && '
-
-    # Install dependencies
-    subprocess.run(activate_command + 'pip install -r requirements.txt', shell=True)
-
-    # Create .env file with API key
-    with open('.env', 'w') as env_file:
-        env_file.write('OPENAI_API_KEY=sk-proj-TvYohELRR0e3Z7LS7eWXT3BlbkFJZEFBOeyvMGSxlGz47IEj\n')
+    # Install dependencies if requirements.txt exists
+    if os.path.exists('requirements.txt'):
+        subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+    else:
+        print("requirements.txt not found, skipping dependency installation")
 
 def initialize():
     load_dotenv()
