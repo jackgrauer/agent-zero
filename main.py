@@ -15,17 +15,16 @@ input_lock = threading.Lock()
 os.chdir(files.get_abs_path("./work_dir")) # change CWD to work_dir
 
 def setup_environment():
-    # Create and activate virtual environment
+    # Create virtual environment
     if not os.path.exists('agent_zero_env'):
         subprocess.run(['python3', '-m', 'venv', 'agent_zero_env'])
 
     # Activate virtual environment
-    activate_script = os.path.join('agent_zero_env', 'bin', 'activate_this.py')
-    with open(activate_script) as file_:
-        exec(file_.read(), dict(__file__=activate_script))
+    activate_script = os.path.join('agent_zero_env', 'bin', 'activate')
+    activate_command = f'source {activate_script} && '
 
     # Install dependencies
-    subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+    subprocess.run(activate_command + 'pip install -r requirements.txt', shell=True)
 
     # Create .env file with API key
     with open('.env', 'w') as env_file:
@@ -61,7 +60,7 @@ def initialize():
         # memory_subdir = "",
         auto_memory_count = 0,
         # auto_memory_skip = 2,
-        # rate_limit_seconds = 60,
+        # rate_limit_seconds = 300,
         # rate_limit_requests = 30,
         # rate_limit_input_tokens = 0,
         # rate_limit_output_tokens = 0,
@@ -69,7 +68,7 @@ def initialize():
         # msgs_keep_start = 5,
         # msgs_keep_end = 10,
         # max_tool_response_length = 3000,
-        # response_timeout_seconds = 60,
+        # response_timeout_seconds = 300,
         code_exec_docker_enabled = True,
         # code_exec_docker_name = "agent-zero-exe",
         # code_exec_docker_image = "frdel/agent-zero-exe:latest",
@@ -106,7 +105,7 @@ def chat(agent: Agent):
                 PrintStyle(background_color="#6C3483", font_color="white", bold=True, padding=True).print(f"User message ({timeout}s timeout, 'w' to wait, 'e' to leave):")
                 import readline # this fixes arrow keys in terminal
                 # user_input = timed_input("> ", timeout=timeout)
-                user_input = timeout_input("> ", timeout=timeout)
+                user_input = timeout_input("> ", timeout=300)
                                     
                 if not user_input:
                     user_input = read_file("prompts/fw.msg_timeout.md")
@@ -159,7 +158,7 @@ def capture_keys():
                     continue
 
 # User input with timeout
-def timeout_input(prompt, timeout=10):
+def timeout_input(prompt, timeout=300): # timeout set to 300 seconds (5 minutes)
     return timed_input.timeout_input(prompt=prompt, timeout=timeout)
 
 if __name__ == "__main__":
